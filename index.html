@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Doggo Merge — собачки</title>
+    <title>Doggo Merge — объединяй собачек</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Подключаем Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
     <div id="app">
-        <!-- Шапка с балансом и кнопкой кошелька (заглушка) -->
+        <!-- Шапка с балансом -->
         <div class="header">
             <div class="balance">
                 <span>🦴 <span id="bone-balance">0</span></span>
@@ -53,8 +52,8 @@
                 <button class="buy-btn" data-item="hammer">50 🦴</button>
             </div>
             <div class="shop-item">
-                <span>✨ Волшебная палочка (слияние 3-х)</span>
-                <button class="buy-btn" data-item="wand">2 💎</button>
+                <span>✨ Волшебная палочка (слияние 3-х) — скоро</span>
+                <button class="buy-btn" data-item="wand" disabled>2 💎</button>
             </div>
         </div>
 
@@ -72,7 +71,6 @@
         </div>
     </div>
 
-    <!-- Подключаем основной скрипт -->
     <script src="script.js"></script>
 </body>
 </html>
