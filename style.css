@@ -3,7 +3,7 @@
     margin: 0;
     padding: 0;
     user-select: none;
-    font-family: 'Segoe UI', Roboto, sans-serif;
+    font-family: system-ui, -apple-system, sans-serif;
 }
 
 body {
@@ -21,54 +21,26 @@ body {
     width: 100%;
     background: white;
     border-radius: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     overflow: hidden;
-    position: relative;
-    padding-bottom: 70px; /* под навигацию */
+    padding-bottom: 20px;
 }
 
 .header {
     background: #ffd166;
-    padding: 12px 16px;
+    padding: 15px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    font-size: 20px;
     font-weight: bold;
-    font-size: 18px;
-}
-
-.balance span {
-    margin-right: 20px;
-}
-
-.wallet-btn {
-    background: #222;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    cursor: pointer;
-}
-
-.wallet-address {
-    font-size: 12px;
-    color: #555;
-    margin-left: 8px;
-}
-
-.game-area {
-    padding: 16px;
 }
 
 .grid {
     display: grid;
-    gap: 8px;
-    aspect-ratio: 1 / 1;
-}
-
-.grid-4x4 {
     grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 16px;
+    aspect-ratio: 1/1;
 }
 
 .cell {
@@ -77,12 +49,11 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    aspect-ratio: 1 / 1;
+    font-size: 32px;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     cursor: pointer;
-    font-size: 32px;
     position: relative;
-    transition: all 0.1s;
+    aspect-ratio: 1/1;
 }
 
 .cell.selected {
@@ -98,20 +69,20 @@ body {
     position: absolute;
     bottom: 2px;
     right: 2px;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.5);
     color: white;
     font-size: 10px;
     padding: 2px 4px;
     border-radius: 10px;
 }
 
-.action-bar {
+.buttons {
     display: flex;
     gap: 8px;
     padding: 0 16px 16px;
 }
 
-.action-btn {
+.buttons button {
     flex: 1;
     background: #4caf50;
     border: none;
@@ -123,53 +94,36 @@ body {
     cursor: pointer;
 }
 
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    max-width: 400px;
-    width: 100%;
-    background: white;
+.tabs {
     display: flex;
     justify-content: space-around;
-    padding: 8px 0;
     border-top: 1px solid #ddd;
-    border-radius: 0 0 24px 24px;
+    border-bottom: 1px solid #ddd;
+    background: #f8f9fa;
 }
 
-.nav-btn {
+.tab {
+    flex: 1;
+    padding: 12px;
     background: none;
     border: none;
-    font-size: 28px;
-    padding: 8px 16px;
-    border-radius: 40px;
+    font-size: 16px;
     cursor: pointer;
-    opacity: 0.5;
+    opacity: 0.6;
 }
 
-.nav-btn.active {
+.tab.active {
     opacity: 1;
-    background: #f0f0f0;
+    font-weight: bold;
+    border-bottom: 3px solid #ffd166;
 }
 
 .panel {
-    position: fixed;
-    top: 70px;
-    left: 50%;
-    transform: translateX(-50%);
-    max-width: 400px;
-    width: 100%;
-    height: calc(100% - 130px);
-    background: white;
-    border-radius: 24px 24px 0 0;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
-    padding: 20px;
-    overflow-y: auto;
-    transition: transform 0.3s ease-in-out;
-    z-index: 20;
+    padding: 16px;
 }
 
-.panel.hidden {
-    transform: translateX(-50%) translateY(100%);
+.hidden {
+    display: none;
 }
 
 .shop-item {
@@ -180,19 +134,13 @@ body {
     border-bottom: 1px solid #eee;
 }
 
-.buy-btn {
+.shop-item button {
     background: #4caf50;
-    color: white;
     border: none;
+    color: white;
     padding: 8px 16px;
     border-radius: 20px;
-    font-weight: bold;
     cursor: pointer;
-}
-
-.buy-btn:disabled {
-    background: #aaa;
-    cursor: not-allowed;
 }
 
 .collection-grid {
@@ -205,44 +153,21 @@ body {
 .collection-item {
     background: #eee;
     border-radius: 12px;
-    aspect-ratio: 1;
+    aspect-ratio: 1/1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     font-size: 24px;
-    position: relative;
+    border: 2px solid transparent;
 }
 
 .collection-item.discovered {
     background: #d4edda;
-    border: 2px solid #28a745;
+    border-color: #28a745;
 }
 
-.collection-item .level-label {
+.collection-item span {
     font-size: 12px;
-    background: #333;
-    color: white;
-    padding: 2px 6px;
-    border-radius: 12px;
     margin-top: 4px;
-}
-
-.ref-link {
-    font-size: 12px;
-    word-break: break-all;
-    background: #f0f0f0;
-    padding: 8px;
-    border-radius: 8px;
-    display: inline-block;
-}
-
-#copy-ref-link {
-    margin-top: 8px;
-    padding: 6px 12px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
 }
