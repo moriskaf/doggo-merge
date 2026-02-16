@@ -4,13 +4,40 @@ if (tg) tg.expand();
 
 // ---------- Константы ----------
 const GRID_SIZE = 4; // 4x4
-const MAX_LEVEL = 5;
+const MAX_LEVEL = 10; // теперь до 10 уровня
+
+// 30 пород собак с эмодзи
 const BREEDS = [
     { id: 'corgi', emoji: '🐶', name: 'Корги' },
     { id: 'pug', emoji: '🐕', name: 'Мопс' },
     { id: 'husky', emoji: '🐺', name: 'Хаски' },
     { id: 'labrador', emoji: '🦮', name: 'Лабрадор' },
-    { id: 'dachshund', emoji: '🌭', name: 'Такса' }
+    { id: 'dachshund', emoji: '🌭', name: 'Такса' },
+    { id: 'beagle', emoji: '🐾', name: 'Бигль' },
+    { id: 'rottweiler', emoji: '🐕‍🦺', name: 'Ротвейлер' },
+    { id: 'boxer', emoji: '🐕', name: 'Боксёр' },
+    { id: 'shiba', emoji: '🐕', name: 'Шиба-ину' },
+    { id: 'akita', emoji: '🐕', name: 'Акита' },
+    { id: 'chihuahua', emoji: '🐕', name: 'Чихуахуа' },
+    { id: 'pomeranian', emoji: '🐕', name: 'Померанец' },
+    { id: 'yorkshire', emoji: '🐕', name: 'Йоркшир' },
+    { id: 'bichon', emoji: '🐕', name: 'Бишон' },
+    { id: 'maltese', emoji: '🐕', name: 'Мальтезе' },
+    { id: 'poodle', emoji: '🐩', name: 'Пудель' },
+    { id: 'dalmatian', emoji: '🐕', name: 'Далматин' },
+    { id: 'bulldog', emoji: '🐕', name: 'Бульдог' },
+    { id: 'french_bulldog', emoji: '🐕', name: 'Французский бульдог' },
+    { id: 'great_dane', emoji: '🐕', name: 'Дог' },
+    { id: 'bernese', emoji: '🐕', name: 'Бернский зенненхунд' },
+    { id: 'australian_shepherd', emoji: '🐕', name: 'Австралийская овчарка' },
+    { id: 'border_collie', emoji: '🐕', name: 'Бордер-колли' },
+    { id: 'sheltie', emoji: '🐕', name: 'Шелти' },
+    { id: 'samoyed', emoji: '🐕', name: 'Самоед' },
+    { id: 'malamute', emoji: '🐕', name: 'Маламут' },
+    { id: 'siberian_husky', emoji: '🐺', name: 'Сибирский хаски' },
+    { id: 'alaskan_husky', emoji: '🐺', name: 'Аляскинский хаски' },
+    { id: 'greenland_dog', emoji: '🐺', name: 'Гренландская собака' },
+    { id: 'wolfdog', emoji: '🐺', name: 'Волкособ' }
 ];
 
 // Игровые переменные
@@ -20,10 +47,52 @@ let grid = new Array(GRID_SIZE * GRID_SIZE).fill(null);
 let selectedIndex = -1;
 let discovered = {};
 
+// ---------- Звуковые эффекты через Web Audio API ----------
+let audioCtx = null;
+
+// Инициализация аудио контекста при первом взаимодействии
+function initAudio() {
+    if (audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function playSound(type) {
+    initAudio();
+    if (!audioCtx) return;
+
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    if (type === 'merge') {
+        // звук слияния (восходящий)
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+    } else if (type === 'buy') {
+        // звук покупки (короткий щелчок)
+        osc.frequency.setValueAtTime(800, now);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+    } else {
+        // стандартный звук
+        osc.frequency.setValueAtTime(400, now);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+    }
+
+    osc.start(now);
+    osc.stop(now + 0.2);
+}
+
 // ---------- Загрузка из localStorage ----------
 function loadGame() {
     try {
-        const saved = localStorage.getItem('doggo_save');
+        const saved = localStorage.getItem('doggo_save_v2');
         if (saved) {
             const data = JSON.parse(saved);
             bones = data.bones ?? 100;
@@ -39,7 +108,7 @@ function loadGame() {
 // ---------- Сохранение ----------
 function saveGame() {
     const data = { bones, gems, grid, discovered };
-    localStorage.setItem('doggo_save', JSON.stringify(data));
+    localStorage.setItem('doggo_save_v2', JSON.stringify(data));
 }
 
 // ---------- Обновление интерфейса ----------
@@ -142,8 +211,11 @@ function attemptMerge(idx1, idx2) {
     const key = `${dog1.breed}_${newLevel}`;
     discovered[key] = true;
 
-    // Награда (10 косточек за уровень)
-    bones += 10 * newLevel;
+    // Награда за слияние (изменён баланс: 5 * уровень)
+    bones += 5 * newLevel;
+
+    // Звук слияния
+    playSound('merge');
 
     selectedIndex = -1;
     updateUI();
@@ -168,6 +240,9 @@ function buyEgg() {
 
     const key = `${randomBreed}_1`;
     discovered[key] = true;
+
+    // Звук покупки
+    playSound('buy');
 
     selectedIndex = -1;
     updateUI();
@@ -232,4 +307,7 @@ window.addEventListener('load', () => {
         selectedIndex = -1;
         renderGrid();
     });
+
+    // Инициализируем аудио контекст при первом взаимодействии (по клику)
+    document.addEventListener('click', initAudio, { once: true });
 });

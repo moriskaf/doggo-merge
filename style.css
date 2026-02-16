@@ -1,3 +1,15 @@
+/* Добавим возможность прокрутки для коллекции */
+.collection-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* Остальные стили без изменений, но для удобства дублирую весь файл */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -148,6 +160,9 @@ body {
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
     margin-top: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 5px;
 }
 
 .collection-item {
