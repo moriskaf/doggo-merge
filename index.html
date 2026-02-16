@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Doggo Merge — рабочая версия</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Подключаем Telegram Web App (необязательно для работы, но для интеграции) -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -21,7 +20,7 @@
 
         <!-- Кнопки действий -->
         <div class="buttons">
-            <button id="buyEggBtn">🥚 Купить яйцо (100 🦴)</button>
+            <button id="buyEggBtn">🥚 Купить яйцо (10 🦴)</button>
             <button id="resetSelectionBtn">🔄 Сбросить выбор</button>
         </div>
 
@@ -40,10 +39,10 @@
         <div id="shopPanel" class="panel hidden">
             <h3>Магазин</h3>
             <div class="shop-item">
-                <span>🥚 Обычное яйцо</span>
-                <button id="buyEggInShop">100 🦴</button>
+                <span>🥚 Обычное яйцо (случайная собака 1 ур.)</span>
+                <button id="buyEggInShop">10 🦴</button>
             </div>
-            <!-- Можно добавить другие товары позже -->
+            <!-- Здесь можно будет добавить другие товары -->
         </div>
 
         <div id="collectionPanel" class="panel hidden">

@@ -1,9 +1,8 @@
 // ---------- Инициализация ----------
-// Данные Telegram (если есть)
 let tg = window.Telegram?.WebApp;
 if (tg) tg.expand();
 
-// ---------- Константы и начальное состояние ----------
+// ---------- Константы ----------
 const GRID_SIZE = 4; // 4x4
 const MAX_LEVEL = 5;
 const BREEDS = [
@@ -17,9 +16,9 @@ const BREEDS = [
 // Игровые переменные
 let bones = 100;                 // косточки
 let gems = 0;                    // алмазы (пока не используются)
-let grid = new Array(GRID_SIZE * GRID_SIZE).fill(null);  // null или {breed, level}
-let selectedIndex = -1;          // индекс выбранной ячейки
-let discovered = {};             // объект { "breed_level": true } для коллекции
+let grid = new Array(GRID_SIZE * GRID_SIZE).fill(null);
+let selectedIndex = -1;
+let discovered = {};
 
 // ---------- Загрузка из localStorage ----------
 function loadGame() {
@@ -37,7 +36,7 @@ function loadGame() {
     }
 }
 
-// ---------- Сохранение в localStorage ----------
+// ---------- Сохранение ----------
 function saveGame() {
     const data = { bones, gems, grid, discovered };
     localStorage.setItem('doggo_save', JSON.stringify(data));
@@ -76,37 +75,29 @@ function renderGrid() {
 
 // ---------- Клик по ячейке ----------
 function onCellClick(index) {
-    // Если ячейка пустая — просто сбрасываем выделение
     if (grid[index] === null) {
         selectedIndex = -1;
         renderGrid();
         return;
     }
-
-    // Если ничего не выбрано — выбираем текущую
     if (selectedIndex === -1) {
         selectedIndex = index;
         renderGrid();
         return;
     }
-
-    // Если выбрана та же ячейка — снимаем выделение
     if (selectedIndex === index) {
         selectedIndex = -1;
         renderGrid();
         return;
     }
-
-    // Иначе — пробуем объединить выбранную и текущую
     attemptMerge(selectedIndex, index);
 }
 
-// ---------- Попытка слияния ----------
+// ---------- Слияние ----------
 function attemptMerge(idx1, idx2) {
     const dog1 = grid[idx1];
     const dog2 = grid[idx2];
 
-    // Проверки
     if (!dog1 || !dog2) {
         alert('Ошибка: собака не найдена');
         selectedIndex = -1;
@@ -132,10 +123,9 @@ function attemptMerge(idx1, idx2) {
         return;
     }
 
-    // Проверяем, есть ли свободная ячейка для новой собаки
     const freeIndex = grid.findIndex(cell => cell === null);
     if (freeIndex === -1) {
-        alert('Нет свободного места! Продайте или удалите собаку.');
+        alert('Нет свободного места! Освободите ячейку.');
         selectedIndex = -1;
         renderGrid();
         return;
@@ -145,28 +135,24 @@ function attemptMerge(idx1, idx2) {
     grid[idx1] = null;
     grid[idx2] = null;
 
-    // Создаём новую собаку
+    // Создаём новую
     const newLevel = dog1.level + 1;
     grid[freeIndex] = { breed: dog1.breed, level: newLevel };
 
-    // Добавляем в коллекцию
     const key = `${dog1.breed}_${newLevel}`;
     discovered[key] = true;
 
     // Награда (10 косточек за уровень)
     bones += 10 * newLevel;
 
-    // Сбрасываем выделение
     selectedIndex = -1;
-
-    // Обновляем интерфейс
     updateUI();
     saveGame();
 }
 
-// ---------- Покупка яйца ----------
+// ---------- Покупка яйца (цена 10) ----------
 function buyEgg() {
-    if (bones < 100) {
+    if (bones < 10) {
         alert('Недостаточно косточек');
         return;
     }
@@ -176,22 +162,19 @@ function buyEgg() {
         return;
     }
 
-    bones -= 100;
+    bones -= 10;
     const randomBreed = BREEDS[Math.floor(Math.random() * BREEDS.length)].id;
     grid[freeIndex] = { breed: randomBreed, level: 1 };
 
-    // Добавляем в коллекцию (1 уровень)
     const key = `${randomBreed}_1`;
     discovered[key] = true;
 
-    // Сбрасываем выделение (на всякий случай)
     selectedIndex = -1;
-
     updateUI();
     saveGame();
 }
 
-// ---------- Отрисовка коллекции ----------
+// ---------- Коллекция ----------
 function renderCollection() {
     const container = document.getElementById('collectionGrid');
     if (!container) return;
@@ -221,15 +204,12 @@ function setupTabs() {
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
-            // Сбрасываем выделение при смене вкладки
             selectedIndex = -1;
             renderGrid();
 
-            // Убираем active у всех, добавляем текущему
             tabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
 
-            // Скрываем все панели, показываем нужную
             Object.values(panels).forEach(p => p.classList.add('hidden'));
             const tabName = tab.dataset.tab;
             if (panels[tabName]) {
@@ -240,13 +220,12 @@ function setupTabs() {
     });
 }
 
-// ---------- Инициализация при загрузке ----------
+// ---------- Запуск ----------
 window.addEventListener('load', () => {
     loadGame();
     updateUI();
     setupTabs();
 
-    // Кнопки
     document.getElementById('buyEggBtn').addEventListener('click', buyEgg);
     document.getElementById('buyEggInShop').addEventListener('click', buyEgg);
     document.getElementById('resetSelectionBtn').addEventListener('click', () => {
