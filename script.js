@@ -242,7 +242,7 @@ function renderCollection() {
             const xPos = breedIndex * CELL_WIDTH;
             const yPos = (lvl - 1) * CELL_HEIGHT;
             spriteDiv.style.backgroundPosition = `-${xPos}px -${yPos}px`;
-            spriteDiv.style.backgroundSize = `${SPRITE_WIDTH}px ${SPRITE_HEIGHT}px`;
+            spriteDiv.style.backgroundSize = `${SPRITE_WIDTH}px ${SPRITE_HEIGHT}px`; // фиксируем размер фона
             spriteDiv.style.width = '100%';
             spriteDiv.style.height = '100%';
             item.appendChild(spriteDiv);
@@ -266,7 +266,7 @@ function updateProfile() {
     const profileRefsEl = document.getElementById('profile-refs');
     if (profileRefsEl) profileRefsEl.innerText = refCount;
 
-    const botUsername = 'DoggoMergeBot'; // ⚠️ ЗАМЕНИТЕ НА ИМЯ ВАШЕГО БОТА
+    const botUsername = 'DoggoMergeBot'; // ⚠️ ЗАМЕНИТЕ НА ИМЯ ВАШЕГО БОТА (без @)
     const refLink = `https://t.me/${botUsername}?start=${userId}`;
     const profileLinkEl = document.getElementById('profile-link');
     if (profileLinkEl) profileLinkEl.innerText = refLink;
@@ -318,6 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
     navBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const tab = btn.dataset.tab;
+            // Скрыть все панели
             Object.values(panels).forEach(p => { if (p) p.classList.add('hidden'); });
             navBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -333,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Кошелёк (заглушка)
+    // Кнопка подключения кошелька (заглушка)
     const connectBtn = document.getElementById('connect-wallet');
     if (connectBtn) {
         connectBtn.addEventListener('click', () => {
@@ -347,6 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCollection();
     updateProfile();
 
-    // Автосохранение
+    // Автосохранение каждые 10 секунд
     setInterval(saveGame, 10000);
 });
