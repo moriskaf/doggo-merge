@@ -3,48 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Doggo Merge — много пород, 10 уровней</title>
+    <title>Doggo Merge — собачки</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
     <div id="app">
-        <!-- Шапка с балансом -->
+        <!-- Шапка с балансом и кнопкой кошелька -->
         <div class="header">
-            <div>🦴 <span id="bone-balance">0</span></div>
-            <div>💎 <span id="gem-balance">0</span></div>
-        </div>
-
-        <!-- Игровое поле 4x4 -->
-        <div id="grid" class="grid"></div>
-
-        <!-- Кнопки действий -->
-        <div class="buttons">
-            <button id="buyEggBtn">🥚 Купить яйцо (10 🦴)</button>
-            <button id="resetSelectionBtn">🔄 Сбросить выбор</button>
-        </div>
-
-        <!-- Нижняя навигация (вкладки) -->
-        <div class="tabs">
-            <button class="tab active" data-tab="game">🏠 Игра</button>
-            <button class="tab" data-tab="shop">🛒 Магазин</button>
-            <button class="tab" data-tab="collection">📖 Коллекция</button>
-        </div>
-
-        <!-- Панели -->
-        <div id="gamePanel" class="panel"></div>
-
-        <div id="shopPanel" class="panel hidden">
-            <h3>Магазин</h3>
-            <div class="shop-item">
-                <span>🥚 Обычное яйцо (случайная собака 1 ур.)</span>
-                <button id="buyEggInShop">10 🦴</button>
+            <div class="balance">
+                <span>🦴 <span id="bone-balance">0</span></span>
+                <span>💎 <span id="gem-balance">0</span></span>
+            </div>
+            <div class="wallet">
+                <button id="connect-wallet" class="wallet-btn">TON кошелёк</button>
+                <span id="wallet-address" class="wallet-address"></span>
             </div>
         </div>
 
-        <div id="collectionPanel" class="panel hidden">
-            <h3>Коллекция</h3>
-            <div id="collectionGrid" class="collection-grid"></div>
+        <!-- Игровое поле (сетка 4x4) -->
+        <div class="game-area">
+            <div id="grid" class="grid grid-4x4"></div>
+        </div>
+
+        <!-- Панель действий -->
+        <div class="action-bar">
+            <button id="buy-egg-btn" class="action-btn">🥚 Купить яйцо (100 🦴)</button>
+            <button id="merge-btn" class="action-btn">🔄 Сбросить выбор</button>
+        </div>
+
+        <!-- Нижняя навигация (вкладки) -->
+        <div class="bottom-nav">
+            <button class="nav-btn active" data-tab="grid">🏠</button>
+            <button class="nav-btn" data-tab="shop">🛒</button>
+            <button class="nav-btn" data-tab="collection">📖</button>
+            <button class="nav-btn" data-tab="profile">👤</button>
+        </div>
+
+        <!-- Панель магазина (скрыта) -->
+        <div id="shop-panel" class="panel hidden">
+            <h2>Магазин</h2>
+            <div class="shop-item">
+                <span>🥚 Обычное яйцо (случайная собака 1 ур.)</span>
+                <button class="buy-btn" data-item="basic-egg">100 🦴</button>
+            </div>
+            <div class="shop-item">
+                <span>🔨 Молоток (удалить собаку)</span>
+                <button class="buy-btn" data-item="hammer">50 🦴</button>
+            </div>
+            <div class="shop-item">
+                <span>✨ Волшебная палочка (слияние 3-х) — скоро</span>
+                <button class="buy-btn" data-item="wand" disabled>2 💎</button>
+            </div>
+        </div>
+
+        <!-- Панель коллекции (скрыта) -->
+        <div id="collection-panel" class="panel hidden">
+            <h2>Коллекция</h2>
+            <div id="collection-grid" class="collection-grid"></div>
+        </div>
+
+        <!-- Панель профиля (скрыта) -->
+        <div id="profile-panel" class="panel hidden">
+            <h2>Профиль</h2>
+            <p>ID: <span id="profile-id"></span></p>
+            <p>Рефералов: <span id="profile-refs">0</span></p>
+            <p>Ваша ссылка: <br><span id="profile-link" class="ref-link"></span></p>
+            <button id="copy-ref-link">📋 Копировать ссылку</button>
         </div>
     </div>
 
