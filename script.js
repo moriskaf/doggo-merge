@@ -2,10 +2,9 @@
 let tg = window.Telegram?.WebApp;
 if (tg) {
     tg.expand();
-    tg.enableClosingConfirmation?.(); // для версий, где поддерживается
+    tg.enableClosingConfirmation?.();
 } else {
     console.warn('Telegram WebApp не доступен, используется обычный браузер');
-    // Создаём заглушку для tg.showAlert
     tg = { showAlert: (msg) => alert(msg) };
 }
 
@@ -18,22 +17,27 @@ const MAX_LEVEL = 5;
 const GRID_SIZE = 4;
 const TOTAL_CELLS = GRID_SIZE * GRID_SIZE;
 
-// ---------- Породы (10 шт.) с эмодзи ----------
-const breeds = [
-    { id: 'corgi', emoji: '🐶', name: 'Корги' },
-    { id: 'pug', emoji: '🐕', name: 'Мопс' },
-    { id: 'dachshund', emoji: '🌭', name: 'Такса' },
-    { id: 'husky', emoji: '🐺', name: 'Хаски' },
-    { id: 'labrador', emoji: '🦮', name: 'Лабрадор' },
-    { id: 'shiba', emoji: '🐕‍🦺', name: 'Шиба-ину' },
-    { id: 'dalmatian', emoji: '🐶', name: 'Далматин' },
-    { id: 'doberman', emoji: '🐩', name: 'Доберман' },
-    { id: 'samoyed', emoji: '🐕', name: 'Самоед' },
-    { id: 'chowchow', emoji: '🐶', name: 'Чау-чау' }
-];
+// ---------- Параметры спрайт-листа (1705x861, 10 столбцов, 5 строк) ----------
+const SPRITE_WIDTH = 1705;
+const SPRITE_HEIGHT = 861;
+const COLS = 10;
+const ROWS = 5;
+const CELL_WIDTH = SPRITE_WIDTH / COLS;   // 170.5px
+const CELL_HEIGHT = SPRITE_HEIGHT / ROWS; // 172.2px
 
-// Для быстрого получения эмодзи по id
-const breedEmoji = Object.fromEntries(breeds.map(b => [b.id, b.emoji]));
+// ---------- Породы (10 шт.) - порядок должен совпадать со спрайтом! ----------
+const breeds = [
+    { id: 'corgi', name: 'Корги' },
+    { id: 'pug', name: 'Мопс' },
+    { id: 'dachshund', name: 'Такса' },
+    { id: 'husky', name: 'Хаски' },
+    { id: 'labrador', name: 'Лабрадор' },
+    { id: 'shiba', name: 'Шиба-ину' },
+    { id: 'dalmatian', name: 'Далматин' },
+    { id: 'doberman', name: 'Доберман' },
+    { id: 'samoyed', name: 'Самоед' },
+    { id: 'chowchow', name: 'Чау-чау' }
+];
 
 // ---------- Состояние игры ----------
 let bones = 100;
@@ -80,7 +84,7 @@ function addToCollection(breed, level) {
     }
 }
 
-// ---------- Рендер сетки ----------
+// ---------- Рендер сетки со спрайтами ----------
 function renderGrid() {
     const gridEl = document.getElementById('grid');
     if (!gridEl) return;
@@ -90,8 +94,23 @@ function renderGrid() {
         cell.className = 'cell';
         if (grid[i]) {
             const dog = grid[i];
-            const emoji = breedEmoji[dog.breed] || '🐶';
-            cell.innerHTML = `<span class="dog-emoji">${emoji}</span><span class="level-badge">${dog.level}</span>`;
+            const breedIndex = breeds.findIndex(b => b.id === dog.breed);
+            if (breedIndex !== -1) {
+                const spriteDiv = document.createElement('div');
+                spriteDiv.className = 'dog-sprite';
+                // Позиция: столбец = порода, строка = уровень-1
+                const xPos = breedIndex * CELL_WIDTH;
+                const yPos = (dog.level - 1) * CELL_HEIGHT;
+                spriteDiv.style.backgroundPosition = `-${xPos}px -${yPos}px`;
+                cell.appendChild(spriteDiv);
+            } else {
+                cell.textContent = '🐶'; // fallback
+            }
+            // Бейдж уровня
+            const badge = document.createElement('span');
+            badge.className = 'level-badge';
+            badge.textContent = dog.level;
+            cell.appendChild(badge);
         } else {
             cell.classList.add('empty');
         }
@@ -143,12 +162,9 @@ function mergeDogs(idx1, idx2) {
     }
 
     const newLevel = dog1.level + 1;
-
-    // Удаляем двух
     grid[idx1] = null;
     grid[idx2] = null;
 
-    // Ищем первую свободную ячейку
     const freeIdx = grid.findIndex(cell => cell === null);
     if (freeIdx !== -1) {
         grid[freeIdx] = { breed: dog1.breed, level: newLevel };
@@ -165,7 +181,7 @@ function mergeDogs(idx1, idx2) {
     selectedIndex = -1;
     renderGrid();
     saveGame();
-    renderCollection(); // если панель открыта
+    renderCollection();
 }
 
 // ---------- Покупка яйца ----------
@@ -208,23 +224,37 @@ function buyHammer() {
     saveGame();
 }
 
-// ---------- Коллекция ----------
+// ---------- Коллекция со спрайтами ----------
 function renderCollection() {
     const container = document.getElementById('collection-grid');
     if (!container) return;
 
-    let html = '';
-    breeds.forEach(breed => {
+    container.innerHTML = '';
+    breeds.forEach((breed, breedIndex) => {
         for (let lvl = 1; lvl <= MAX_LEVEL; lvl++) {
             const key = `${breed.id}_${lvl}`;
             const discoveredClass = discovered[key] ? 'discovered' : '';
-            html += `<div class="collection-item ${discoveredClass}">
-                <span>${breed.emoji}</span>
-                <span class="level-label">${lvl} ур.</span>
-            </div>`;
+            const item = document.createElement('div');
+            item.className = `collection-item ${discoveredClass}`;
+
+            const spriteDiv = document.createElement('div');
+            spriteDiv.className = 'dog-sprite';
+            const xPos = breedIndex * CELL_WIDTH;
+            const yPos = (lvl - 1) * CELL_HEIGHT;
+            spriteDiv.style.backgroundPosition = `-${xPos}px -${yPos}px`;
+            spriteDiv.style.backgroundSize = `${SPRITE_WIDTH}px ${SPRITE_HEIGHT}px`;
+            spriteDiv.style.width = '100%';
+            spriteDiv.style.height = '100%';
+            item.appendChild(spriteDiv);
+
+            const label = document.createElement('span');
+            label.className = 'level-label';
+            label.textContent = `${lvl} ур.`;
+            item.appendChild(label);
+
+            container.appendChild(item);
         }
     });
-    container.innerHTML = html;
 }
 
 // ---------- Профиль и рефералы ----------
@@ -265,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Кнопка "Купить яйцо" на панели действий
+    // Кнопка "Купить яйцо"
     const buyEggBtn = document.getElementById('buy-egg-btn');
     if (buyEggBtn) buyEggBtn.addEventListener('click', buyBasicEgg);
 
@@ -276,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderGrid();
     });
 
-    // Навигация по вкладкам
+    // Навигация
     const navBtns = document.querySelectorAll('.nav-btn');
     const panels = {
         grid: null,
@@ -288,7 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
     navBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const tab = btn.dataset.tab;
-            // Скрыть все панели
             Object.values(panels).forEach(p => { if (p) p.classList.add('hidden'); });
             navBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -304,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Кнопка подключения кошелька (заглушка)
+    // Кошелёк (заглушка)
     const connectBtn = document.getElementById('connect-wallet');
     if (connectBtn) {
         connectBtn.addEventListener('click', () => {
@@ -312,12 +341,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Загружаем игру и отображаем
+    // Загрузка и старт
     loadGame();
     renderGrid();
-    renderCollection(); // для начального заполнения коллекции
+    renderCollection();
     updateProfile();
 
-    // Автосохранение каждые 10 секунд
+    // Автосохранение
     setInterval(saveGame, 10000);
 });
